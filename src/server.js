@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import express from 'express'
 import exitHook from 'async-exit-hook'
-import { CONNECT_DB, GET_DB, CLOSE_DB } from '~/config/mongodb'
+import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
+import { APIs_V1 } from '~/routes/v1'
+import { env } from '~/config/environment'
 
 const START_SERVER = () => {
   const app = express()
@@ -9,18 +11,15 @@ const START_SERVER = () => {
   const hostname = 'localhost'
   const port = 8017
 
-  app.get('/', async (req, res) => {
-    console.log( await GET_DB().listCollections().toArray())
+  app.use('/v1', APIs_V1 )
 
-    res.end('<h1>Hello World!</h1><hr>')
-  })
-  app.listen(port, hostname, () => {
-    console.log(`3. Hello SongDang, I am running at Host: ${hostname} and Port ${port}/`)
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
+    console.log(`3. Hello ${env.AUTHOR}, I am running at Host: ${hostname} and Port ${port}/`)
   })
 
   //clean up, dong ket noi mongodb truoc khi dung server
   exitHook(() => {
-    console.log('4. Disconnecting from MongoDB Cloud Atlas...')
+    console.log('4. Server is shutting down...')
     CLOSE_DB()
     console.log('5. Disconneted from MongoDB Cloud Atlas')
   })
